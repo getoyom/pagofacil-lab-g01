@@ -58,13 +58,25 @@ c8985e3 fix(calcular_total): Cambiar el signo
 ## 4. Versionamiento
 
 1. Corrigieron 3 defectos sin cambiar la interfaz pública. ¿Por qué la nueva versión es `1.0.1` y no `1.1.0` ni `2.0.0`?
-   <<COMPLETAR>>
+   Según el Versionado Semántico (SemVer: `MAJOR.MINOR.PATCH`), un incremento en patch (el tercer dígito) se utiliza exclusivamente cuando se corrigen defectos (*bug fixes*) garantizando retrocompatibilidad y sin alterar la API pública. No es `1.1.0` (MINOR) porque no se introdujo ninguna funcionalidad nueva, ni `2.0.0` (MAJOR) porque no se rompieron contratos preexistentes ni compatibilidad hacia atrás.
+
 2. Si agregaran la función nueva `calcular_comision_con_iva(monto)` sin tocar nada existente, ¿qué versión sería y por qué?
-   <<COMPLETAR>>
+   Sería la versión `1.1.0`. De acuerdo con SemVer, se incrementa el valor de minor (el segundo dígito) cuando se añade una nueva funcionalidad que mantiene la compatibilidad con las versiones anteriores, permitiendo que el código cliente existente continúe funcionando con normalidad sin necesidad de cambios.
+
 3. Si cambiaran `calcular_comision(monto)` para exigir un segundo parámetro obligatorio `moneda`, ¿qué versión sería y por qué?
-   <<COMPLETAR>>
+   Sería la versión `2.0.0`. Se debe incrementar el valor de major (el primer dígito) cuando se introducen cambios que rompen la compatibilidad hacia atrás (*breaking changes*). Al exigir un nuevo parámetro obligatorio, cualquier llamada existente de la forma `calcular_comision(monto)` fallará con un `TypeError`, rompiendo la interfaz pública para los clientes que dependían de la versión 1.x.x.
+
 4. Ejecuten `git diff v1.0.0 v1.0.1 --stat`. ¿Qué archivos cambiaron y por qué es útil poder comparar dos versiones?
-   <<COMPLETAR>>
+   Cambiaron los siguientes archivos:
+   - `CHANGELOG.md` (documentación de los cambios y correcciones de la versión)
+   - `equipo/DurrysCode.txt` (archivo de registro de participación del equipo)
+   - `src/pagofacil/comision.py` (código fuente donde se corrigieron los 3 defectos)
+
+   Es sumamente útil comparar versiones con herramientas de Git porque permite auditar con precisión qué archivos y líneas de código exactas se modificaron entre un lanzamiento y otro. Facilita las revisiones de código (*code review*), agiliza la localización de causas raíz si surge una regresión inesperada en producción y asegura que no se hayan introducido cambios no autorizados o fuera del alcance de la entrega.
+
+## 5. Mini duelo
+
+Tabla de casos que diseñaron (mínimo 6 filas; indiquen la técnica):
 
 ## 5. Mini duelo
 
@@ -72,15 +84,16 @@ Tabla de casos que diseñaron (mínimo 6 filas; indiquen la técnica):
 
 | Partición o límite que cubre | Entrada | Resultado esperado | Técnica |
 |------------------------------|---------|--------------------|---------|
-| <<COMPLETAR>> | <<COMPLETAR>> | <<COMPLETAR>> | <<COMPLETAR>> |
-| <<COMPLETAR>> | <<COMPLETAR>> | <<COMPLETAR>> | <<COMPLETAR>> |
-| <<COMPLETAR>> | <<COMPLETAR>> | <<COMPLETAR>> | <<COMPLETAR>> |
-| <<COMPLETAR>> | <<COMPLETAR>> | <<COMPLETAR>> | <<COMPLETAR>> |
-| <<COMPLETAR>> | <<COMPLETAR>> | <<COMPLETAR>> | <<COMPLETAR>> |
-| <<COMPLETAR>> | <<COMPLETAR>> | <<COMPLETAR>> | <<COMPLETAR>> |
+| Límite superior Tramo 1 (exento de comisión) | `monto = 100` | `0.0` | Análisis de Valores Límite (BVA) |
+| Límite inferior Tramo 2 (1.5% de comisión) | `monto = 100.01` | `1.50` | Análisis de Valores Límite (BVA) |
+| Límite superior Tramo 2 (1.5% de comisión) | `monto = 1000` | `15.00` | Análisis de Valores Límite (BVA) |
+| Límite inferior Tramo 3 (1% de comisión) | `monto = 1000.01` | `10.00` | Análisis de Valores Límite (BVA) |
+| Límite del tope máximo de comisión (Q25.00) | `monto = 3000` | `25.00` | Partición de Equivalencia |
+| Partición inválida: Números menores o iguales a cero | `monto = 0`, `-1`, `-0.01` | `ValueError` | Partición de Equivalencia y Valores Límite |
+| Partición inválida: Tipos no numéricos y booleanos (mutante bonus) | `monto = True`, `False`, `"50"`, `None` | `TypeError` | Partición de Equivalencia |
 
-- **Resultado del marcador (mutantes detectados de 7):** <<COMPLETAR>>
-- **¿Qué mutantes sobrevivieron (si alguno) y qué caso de prueba les habría faltado?** <<COMPLETAR>>
+- **Resultado del marcador (mutantes detectados de 7):** 7 de 7 detectados.
+- **¿Qué mutantes sobrevivieron (si alguno) y qué caso de prueba les habría faltado?** Ninguno. Se logró detectar el 100% de los mutantes (incluyendo el mutante bonus) gracias a la combinación de Análisis de Valores Límite (BVA) en las fronteras exactas (100, 100.01, 1000, 1000.01) y Partición de Equivalencia exhaustiva sobre entradas no válidas (especialmente probando valores booleanos como `True` y `False`, que en Python heredan de `int` y suelen pasar desapercibidos si solo se valida con `isinstance(monto, (int, float))` sin restringir tipos booleanos).
 
 ## 6. Reflexión (5 a 8 líneas)
 
@@ -88,4 +101,4 @@ Su suite visible quedó 100 % en verde y, aun así, el duelo puede encontrar def
 ¿Qué implica eso para la estrategia de pruebas? Relaciónenlo con la pirámide de pruebas, con
 qué conviene automatizar y con el caso Knight Capital de la clase.
 
-<<COMPLETAR>>
+<<Tener una suite visible al 100 % en verde únicamente demuestra que el código satisface los casos evaluados, no la ausencia total de defectos. En la estrategia de pruebas, esto resalta que la calidad no se mide solo por la cobertura, sino por la efectividad del diseño de casos mediante valores límite y análisis de mutaciones. En la base de la pirámide de pruebas, conviene automatizar masivamente pruebas unitarias rigurosas y rápidas para validar reglas de negocio críticas antes de subir a niveles de integración. Esto evita fallas catastróficas como la de Knight Capital, donde código defectuoso y reutilizado sin pruebas de regresión adecuadas ni salvaguardas automatizadas causó pérdidas millonarias en minutos. Automatizar bien implica desafiar activamente los supuestos del sistema y no conformarse con un reporte en verde superficial>>
