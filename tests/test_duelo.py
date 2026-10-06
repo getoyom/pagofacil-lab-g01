@@ -68,4 +68,3 @@ def test_validar_monto_devuelve_float(monto):
 def test_monto_cero_es_invalido():
     with pytest.raises(ValueError):
         calcular_comision(0)
-
