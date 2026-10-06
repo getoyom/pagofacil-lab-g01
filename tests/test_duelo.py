@@ -21,3 +21,8 @@ def test_ejemplo_monto_bajo():  # ejemplo que ya pasa; puedes borrarlo o conserv
 
 
 # --- Tus pruebas empiezan aquí ---
+
+def test_monto_cero_es_invalido():
+    with pytest.raises(ValueError):
+        calcular_comision(0)
+
