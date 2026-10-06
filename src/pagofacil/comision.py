@@ -33,6 +33,11 @@ def calcular_comision(monto):
         comision = monto * TASA_INTERMEDIA
     else:
         comision = monto * TASA_REDUCIDA
+
+        # corrección: la comisión nunca supera Q25
+        if comision > TOPE_COMISION:
+            comision = TOPE_COMISION
+
     return round(comision, 2)
 
 
