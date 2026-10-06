@@ -33,7 +33,7 @@ Pega la salida real de estos comandos (bloque de código):
 |---|----------------------|-----------------------------|------------|-------------------------------|--------|-------|
 | 1 | <<COMPLETAR>> | <<COMPLETAR>> | <<COMPLETAR>> | <<COMPLETAR>> | <<COMPLETAR>> | <<COMPLETAR>> |
 | 2 | <<COMPLETAR>> | <<COMPLETAR>> | <<COMPLETAR>> | <<COMPLETAR>> | <<COMPLETAR>> | <<COMPLETAR>> |
-| 3 | <<COMPLETAR>> | <<COMPLETAR>> | <<COMPLETAR>> | <<COMPLETAR>> | <<COMPLETAR>> | <<COMPLETAR>> |
+| 3 | tests/test_total.py| monto = 200, esperado = 203.0| La función calcular_total() restaba la comisión al monto en lugar de sumarla | calcular_total() es taba restando comision | return round(monto + comision, 2) | fix(calcular total): Cambiar el signo |
 
 **Pregunta:** al inicio había 6 pruebas fallando pero solo 3 defectos. ¿Por qué? ¿Qué diferencia hay entre *síntoma* y *causa raíz*?
 
